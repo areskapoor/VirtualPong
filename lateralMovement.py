@@ -4,6 +4,9 @@ import sys
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
  
 if __name__ == '__main__' :
+
+    #determines if start frame has been initialized
+    start = False
  
     # Tracker setup
  
@@ -42,9 +45,6 @@ if __name__ == '__main__' :
         print ('Cannot read video file')
         sys.exit()
 
-    #dead code
-    bbox = (287, 23, 86, 320)
-
     bbox = cv2.selectROI(frame, False)
 
     ok = tracker.init(frame, bbox)
@@ -66,7 +66,7 @@ if __name__ == '__main__' :
 
         cxBbox = bbox[0] + bbox[2]/2
         #change in frames
-        dx = int(cxBbox-initCXBbox)
+        #dx = int(cxBbox-initCXBbox)
 
         # Calculate Frames per second (FPS)
         fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer);
@@ -80,6 +80,11 @@ if __name__ == '__main__' :
 
             #center of the box
             cBbox = (int(bbox[0] + bbox[2]/2),int(bbox[1] + bbox[3]/2))
+
+            if start:
+                dx = int(cxBbox-startCxBbox)
+                #display dx - temp
+                cv2.putText(frame, "dx :" + str(dx), (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2)
             
             cv2.circle(frame, cBbox, 1, (255,0,0) , 2)
             cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
@@ -88,16 +93,20 @@ if __name__ == '__main__' :
             cv2.putText(frame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
         # Display tracker type on frame
-        cv2.putText(frame, tracker_type + " Tracker", (100,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2);
-        #display dx
-        cv2.putText(frame, "dx :" + str(dx), (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2);
-
+        cv2.putText(frame, tracker_type + " Tracker", (100,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2)
+        
         # Display FPS on frame
-        cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2);
+        cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2)
         # Display result
         cv2.imshow("Tracking", frame)
 
-        # Exit if ESC pressed
+        #if s pressed
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            start = True
+            ok, bbox = tracker.update(frame)
+            startCxBbox = bbox[0] + bbox[2]/2
+
+        # Exit if q pressed
         if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
             break
 
