@@ -56,12 +56,8 @@ def drawCupHelper(x,z):
 # cupHit = cupCollision(v, l, dx, 7, 1, g) #v,l,dx determined from opencv
 #                                         # g number - needs to be calcd
 # if cupHit != None:
-#     t0 = time.clock()
-#     while True:
-#         dt = time.clock()-t0 #change in time
-#         if dt == 0.45: #time from thrown to hitting cup - const MIGHT CHG 
+#     time.sleep(.45) #whatever time it takes to hit is
 #             cupLocations.pop(cupHit)
-#             break
 # v = l = dx = g = 10
 def cupCollision(v, l, dx, y, h, g):
     t = math.sqrt((2*y-2*h)/g) #time
