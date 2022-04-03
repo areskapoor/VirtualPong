@@ -2,6 +2,7 @@ import cv2
 import sys
 import math
 from vpython import *
+import time
 
 
 scene = canvas(width=700, height=800,
@@ -283,6 +284,10 @@ def virtualPong():
                     cupHit = cupCollision(velocity,v, l, dx, 7, 1, g)
                     if cupHit != None:
                         cups[cupHit].visible = False
+                        score = text(pos = vector(0,20,-10), align = 'center', 
+                                height = 5, text = 'Score!!')
+                        time.sleep(2)
+                        score.visible = False
 
                     gameStarted = False
                     throwStarted = False
