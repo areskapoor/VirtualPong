@@ -1,144 +1,240 @@
 import cv2
 import sys
 import math
-import numpy as np
+from vpython import *
+import time
 
 
-tracker1 = cv2.TrackerCSRT_create()
-tracker2 = cv2.TrackerCSRT_create()
+scene = canvas(width=1425, height=775,
+     center=vector(0,0,0), background=color.black)
 
-#Side Video
-sideVideo = cv2.VideoCapture(1)
-if not sideVideo.isOpened():
-        print("Could not open video")
-        sys.exit()
-sideOk, sideFrame = sideVideo.read()
-if not sideOk:
-    print('Cannot read video file')
-    sys.exit()
+g = -0.0008
 
-#Front Video
-frontVideo = cv2.VideoCapture(0)
+cup1Loc=[-0.6,1,9.4]
+cup2Loc=[0.6,1,9.4]
+cup3Loc=[-1.8,1,9.4]
+cup4Loc=[1.8,1,9.4]
+cup5Loc=[0,1,8.2]
+cup6Loc=[-1.2,1,8.2]
+cup7Loc=[1.2,1,8.2]
+cup8Loc=[-0.6,1,7]
+cup9Loc=[0.6,1,7]
+cup10Loc=[0,1,5.8]
 
-if not frontVideo.isOpened():
-    print("Could not open video")
-    sys.exit()
+cupLocations=[cup1Loc,cup2Loc,cup3Loc,cup4Loc,
+    cup5Loc,cup6Loc,cup7Loc,cup8Loc
+    ,cup9Loc,cup10Loc]
+
+def drawTableBorder():
+    tableBorderMiddle=box(pos=vector(0,0.41,0),color=color.black,length=0.1, width=20, height=0)
+    tableBorderLeft=box(pos=vector(-4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
+    tableBorderLeft=box(pos=vector(4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
+
+def drawPongTable():
+    pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
+
+def drawBall(v,changex,l):
+    ball=sphere (color=color.orange, radius=.4)
+    angle = math.atan(changex/l)
+    dx = v * math.sin(angle)
+    ddy=-0.01
+    dy=0
+    dz=-v
+    xPos=0
+    yPos=7
+    zPos=10
     
-frontOk, frontFrame = frontVideo.read()
-    
-if not frontOk:
-    print ('Cannot read video file')
-    sys.exit()
+    while yPos>0:
+        rate(40)
+        dy=dy+ddy
+        xPos = xPos + dx
+        yPos=yPos+dy
+        zPos=zPos+dz
+        ball.pos=vector(xPos,yPos,zPos)
 
-#ROI selection
-sideBbox = cv2.selectROI('SideTrack', sideFrame)
-frontBbox = cv2.selectROI('FrontTrack', frontFrame)
-
-sideOk = tracker1.init(sideFrame, sideBbox)
-frontOk = tracker2.init(frontFrame, frontBbox)
-
-gameStarted = False
-throwStarted = False
-start = False
-
-def drawSideBox(sideOk, sideBbox, comboFrame):
-    # Draw bounding box
-    if sideOk:
-        # Tracking success
-        p1 = (int(sideBbox[0]), int(sideBbox[1]))
-        p2 = (int(sideBbox[0] + sideBbox[2]), int(sideBbox[1] + sideBbox[3]))
-        cv2.rectangle(comboFrame, p1, p2, (0,0,255), 2, 1)
-
-    else :
-        # Tracking failure
-        cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
-    
-def drawFrontBox(frontOk, frontBbox, comboFrame):
-    if frontOk:
-        # Tracking success 
-        p1 = (int(frontBbox[0]), int(frontBbox[1])) #top left corner
-        p2 = (int(frontBbox[0] + frontBbox[2]), int(frontBbox[1] + frontBbox[3])) #bottom right
-
-        cv2.rectangle(comboFrame, p1, p2, (255,0,0), 2, 1)
+    ball.visible = False
         
-    else :
-        # Tracking failure
-        cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
+def drawCupHelper(x,z):
+    #https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Extrusions/edit
+    tube = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(x,1,-z), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+
+def cupCollision(v, l, dx, y, h, g):
+    t = math.sqrt((2*y-2*h)/g) #time
+    posx = ((v*t)/(math.sqrt(l**2+dx**2))+1)*dx
+    posy = ((v*t)/(math.sqrt(l**2+dx**2))+1)*l
+    cups = cupLocations()
+
+    for i in range(len(cups)):
+        center = (cups[i][0], cups[i][2])
+        distance = math.sqrt((center[0]-posx)**2 + (center[1]-posy)**2)
+        if distance < 0.6:
+            return i
     
-while True:
-    # Read a new frame
+    return None
+
+def drawCup():
+    for row in range(len(cupLocations)):
+        drawCupHelper(cupLocations[row][0],cupLocations[row][2])
+    
+
+
+def virtualPong():
+    drawCup()
+    drawPongTable()
+    drawTableBorder()
+
+    tracker1 = cv2.TrackerCSRT_create()
+    tracker2 = cv2.TrackerCSRT_create()
+
+    #Side Video
+    sideVideo = cv2.VideoCapture(1)
+    if not sideVideo.isOpened():
+            print("Could not open video")
+            sys.exit()
     sideOk, sideFrame = sideVideo.read()
     if not sideOk:
-        break
+        print('Cannot read video file')
+        sys.exit()
 
-    # Read a new frame
+    #Front Video
+    frontVideo = cv2.VideoCapture(0)
+
+    if not frontVideo.isOpened():
+        print("Could not open video")
+        sys.exit()
+        
     frontOk, frontFrame = frontVideo.read()
+        
     if not frontOk:
-        break
+        print ('Cannot read video file')
+        sys.exit()
 
-    # Variables before update
-    timer = cv2.getTickCount()
-    initPos = (sideBbox[0]+sideBbox[2]/2,sideBbox[1]+sideBbox[3]/2)
-    initCXBbox = frontBbox[0] + frontBbox[2]/2
+    #ROI selection
+    sideBbox = cv2.selectROI('SideTrack', sideFrame)
+    frontBbox = cv2.selectROI('FrontTrack', frontFrame)
 
-    # Update tracker
-    sideOk, sideBbox = tracker1.update(sideFrame)
-    frontOk, frontBbox = tracker2.update(frontFrame)
+    sideOk = tracker1.init(sideFrame, sideBbox)
+    frontOk = tracker2.init(frontFrame, frontBbox)
 
-    center = (sideBbox[0]+sideBbox[2]/2, sideBbox[1] + sideBbox[3]/2)
-    cxBbox = frontBbox[0] + frontBbox[2]/2
+    gameStarted = False
+    throwStarted = False
 
-    drawSideBox(sideOk, sideBbox, sideFrame)
-    drawFrontBox(frontOk, frontBbox, frontFrame)
+    def drawSideBox(sideOk, sideBbox, comboFrame):
+        # Draw bounding box
+        if sideOk:
+            # Tracking success
+            p1 = (int(sideBbox[0]), int(sideBbox[1]))
+            p2 = (int(sideBbox[0] + sideBbox[2]), int(sideBbox[1] + sideBbox[3]))
+            cv2.rectangle(comboFrame, p1, p2, (0,0,255), 2, 1)
 
-    velocity = math.sqrt((center[0]-initPos[0])**2 + (center[1]-initPos[1])**2) / (cv2.getTickCount()-timer)
+        else :
+            # Tracking failure
+            cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
         
+    def drawFrontBox(frontOk, frontBbox, comboFrame):
+        if frontOk:
+            # Tracking success 
+            p1 = (int(frontBbox[0]), int(frontBbox[1])) #top left corner
+            p2 = (int(frontBbox[0] + frontBbox[2]), int(frontBbox[1] + frontBbox[3])) #bottom right
+
+            cv2.rectangle(comboFrame, p1, p2, (255,0,0), 2, 1)
+            
+        else :
+            # Tracking failure
+            cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+
+
         
-    #User interface keys
-    if cv2.waitKey(1) & 0xFF == ord('p'):
-        gameStarted = True
+    while True:
+        # Read a new frame
+        sideOk, sideFrame = sideVideo.read()
+        if not sideOk:
+            break
 
-    if cv2.waitKey(1) & 0xFF == ord('s'):
-        throwStarted = True
+        # Read a new frame
+        frontOk, frontFrame = frontVideo.read()
+        if not frontOk:
+            break
 
-        startPos = (center[0],center[1])
+        # Variables before update
+        timer = cv2.getTickCount()
+        initPos = (sideBbox[0]+sideBbox[2]/2,sideBbox[1]+sideBbox[3]/2)
+        initCXBbox = frontBbox[0] + frontBbox[2]/2
+
+        # Update tracker
+        sideOk, sideBbox = tracker1.update(sideFrame)
+        frontOk, frontBbox = tracker2.update(frontFrame)
+
+        center = (sideBbox[0]+sideBbox[2]/2, sideBbox[1] + sideBbox[3]/2)
+        cxBbox = frontBbox[0] + frontBbox[2]/2
+
+        drawSideBox(sideOk, sideBbox, sideFrame)
+        drawFrontBox(frontOk, frontBbox, frontFrame)
+
+        velocity = math.sqrt((center[0]-initPos[0])**2 + (center[1]-initPos[1])**2) / (cv2.getTickCount()-timer)
+            
+            
+        #User interface keys
+        if cv2.waitKey(1) & 0xFF == ord('p'):
+            gameStarted = True
+
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            throwStarted = True
+
+            startPos = (center[0],center[1])
+            
+            startCxBbox = frontBbox[0] + frontBbox[2]/2
+
+        if not gameStarted:
+            cv2.putText(sideFrame, "Press 'p' to start your turn", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+            cv2.putText(frontFrame, "Press 'p' to start your turn", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
         
-        startCxBbox = frontBbox[0] + frontBbox[2]/2
+        elif gameStarted:
+            cv2.line(sideFrame,(500,0),(500,720), (0,255,0), 5)
+            cv2.putText(sideFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+            cv2.putText(frontFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
 
-    if gameStarted == True:
-        cv2.line(sideFrame,(550,0),(550,720), (0,255,0), 5)
+            if not throwStarted:
+                cv2.putText(sideFrame, "Press 's' to start throw",(640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(frontFrame, "Press 's' to start throw",(640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
 
-        if throwStarted != True:
-            cv2.putText(sideFrame, "Press 's' to start throw",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-            cv2.putText(frontFrame, "Press 's' to start throw",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+            else:
+                cv2.line(sideFrame,(550,0),(550,720), (0,0,255), 5)
+                cv2.putText(sideFrame, "Throw! Throw made beyond blue line",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(sideFrame, "Throw! Throw made beyond blue line",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                if 550< center[0] <600:
+                    posX = center[0]
+                    posY = center[1]
+                    cxBbox = frontBbox[0] + frontBbox[2]/2
 
-        else:
-            cv2.putText(sideFrame, "Throw!",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-            if 500< center[0] <600:
-                posY = center[1]
-                instVel = velocity
+                    v = velocity * (10**4)
+                    l = posX - startPos[0]
+                    dx = cxBbox - startCxBbox
 
-                horizontalDisplacement = 213 - startPos[0]
-                verticalDisplacement = posY - startPos[1]
-                tangent = horizontalDisplacement/verticalDisplacement
+                    drawBall(v,dx,l)
+                    cupHit = cupCollision(v, l, dx, 7, 1, g)
+                    if cupHit != None:
+                        time.sleep(.45) 
+                        cupLocations.pop(cupHit)
+                        drawCup()
 
-                angle = math.atan(tangent)
+                    gameStarted = False
 
-                cxBbox = frontBbox[0] + frontBbox[2]/2
-                dx = cxBbox - startCxBbox
+            
+        # Display results
+        cv2.imshow("Tracking1", sideFrame)
+        cv2.imshow("Tracking2", frontFrame)
 
-                print(instVel)
-                print(angle)
-                break
-        
-    # Display result
-    cv2.imshow("Tracking1", sideFrame)
-    cv2.imshow("Tracking2", frontFrame)
+        if cv2.waitKey(1) & 0xFF == ord('q'): 
+            break
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): 
-        break
+    sideVideo.release()
+    frontVideo.release()
+    cv2.destroyAllWindows()
+    
+scene.camera.pos = vector(0, 6.52134, 4)
+    
 
-sideVideo.release()
-frontVideo.release()
-cv2.destroyAllWindows()
+virtualPong()
