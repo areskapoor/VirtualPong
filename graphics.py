@@ -1,6 +1,16 @@
 from vpython import *
 from time import *
-def drawpongTable():
+
+
+scene = canvas(width=1425, height=775,
+     center=vector(0,0,0), background=color.black)
+
+def drawTableBorder():
+    tableBorderMiddle=box(pos=vector(0,0.41,0),color=color.black,length=0.1, width=20, height=0)
+    tableBorderLeft=box(pos=vector(-4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
+    tableBorderLeft=box(pos=vector(4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
+
+def drawPongTable():
     pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
 
 def drawBall():
@@ -12,6 +22,7 @@ def drawBall():
     yPos=7
     zPos=10
     loc=cupLocations()
+    
     while True:
         rate(20)
         dy=dy+ddy
@@ -61,15 +72,13 @@ def drawCup():
 
 def virtualPong():
     drawCup()
-    drawpongTable()
+    drawPongTable()
+    drawTableBorder()
     drawBall()
     
 
 
-scene.camera.pos= vector(0, 6.52134, 10)
+scene.camera.pos = vector(0, 6.52134, 4)
     
 
 virtualPong()
-
-
-    
