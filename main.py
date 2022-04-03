@@ -8,7 +8,7 @@ import time
 scene = canvas(width=1425, height=775,
      center=vector(0,0,0), background=color.black)
 
-g = -0.0008
+g = -0.01
 
 cup1Loc=[-0.6,1,9.4]
 cup2Loc=[0.6,1,9.4]
@@ -24,19 +24,44 @@ cup10Loc=[0,1,5.8]
 cupLocations=[cup1Loc,cup2Loc,cup3Loc,cup4Loc,
     cup5Loc,cup6Loc,cup7Loc,cup8Loc
     ,cup9Loc,cup10Loc]
-#https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Bounce-VPython/edit
+
+
+#https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Extrusions/edit
+cup1 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-0.6,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup2 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0.6,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup3 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-1.8,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup4 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(1.8,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup5 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0,1,-8.2), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup6 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-1.2,1,-8.2), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup7 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(1.2,1,-8.2), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup8 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-0.6,1,-7), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup9 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0.6,1,-7), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup10 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0,1,-5.8), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cups = [cup1,cup2,cup3,cup4,cup5,cup6,cup7,cup8,cup9,cup10]
+
+
 def drawTableBorder():
     tableBorderMiddle=box(pos=vector(0,0.41,0),color=color.black,length=0.1, width=20, height=0)
     tableBorderLeft=box(pos=vector(-4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
     tableBorderLeft=box(pos=vector(4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
-#https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Bounce-VPython/edit
+
 def drawPongTable():
     pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
 
 def drawBall(v,changex,l):
     ball=sphere (color=color.orange, radius=.4)
     angle = math.atan(changex/l)
-    dx = v * math.sin(angle)
+    dx = v * math.sin(angle)/3
     ddy=-0.01
     dy=0
     dz=-v
@@ -45,7 +70,7 @@ def drawBall(v,changex,l):
     zPos=10
     
     while yPos>0:
-        rate(40)
+        rate(120)
         dy=dy+ddy
         xPos = xPos + dx
         yPos=yPos+dy
@@ -55,33 +80,21 @@ def drawBall(v,changex,l):
     ball.visible = False
         
 
-def drawCupHelper(x,z):
-    #https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Extrusions/edit
-    tube = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(x,1,-z), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-
 def cupCollision(v, l, dx, y, h, g):
-    t = math.sqrt((2*y-2*h)/g) #time
-    posx = ((v*t)/(math.sqrt(l**2+dx**2))+1)*dx
-    posy = ((v*t)/(math.sqrt(l**2+dx**2))+1)*l
-    cups = cupLocations()
+    t = math.sqrt(abs((2*y-2*h)/g)) #time
+    posx = ((v*t)/(math.sqrt(l**2+dx**2))+1)*dx/3
+    posy = 10+((-v*t)/(math.sqrt(l**2+dx**2))+1)*l
 
-    for i in range(len(cups)):
-        center = (cups[i][0], cups[i][2])
-        distance = math.sqrt((center[0]-posx)**2 + (center[1]-posy)**2)
-        if distance < 0.6:
+    for i in range(len(cupLocations)):
+        center = (cupLocations[i][0], cupLocations[i][2])
+        distance = math.sqrt((center[0]-posx)**2 + (-center[1]-posy)**2)
+        if distance < 1:
             return i
     
     return None
 
-def drawCup():
-    for row in range(len(cupLocations)):
-        drawCupHelper(cupLocations[row][0],cupLocations[row][2])
-    
-
 
 def virtualPong():
-    drawCup()
     drawPongTable()
     drawTableBorder()
 
@@ -193,34 +206,34 @@ def virtualPong():
         
         elif gameStarted:
             cv2.line(sideFrame,(500,0),(500,720), (0,255,0), 5)
-            cv2.putText(sideFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-            cv2.putText(frontFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+            
 
             if not throwStarted:
+                cv2.putText(sideFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(frontFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
                 cv2.putText(sideFrame, "Press 's' to start throw",(640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
                 cv2.putText(frontFrame, "Press 's' to start throw",(640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
 
             else:
-                cv2.line(sideFrame,(550,0),(550,720), (0,0,255), 5)
+                cv2.line(sideFrame,(800,0),(800,720), (255,0,0), 5)
                 cv2.putText(sideFrame, "Throw! Throw made beyond blue line",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
                 cv2.putText(sideFrame, "Throw! Throw made beyond blue line",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-                if 550< center[0] <600:
+                if 750 < center[0] <850:
                     posX = center[0]
                     posY = center[1]
                     cxBbox = frontBbox[0] + frontBbox[2]/2
 
-                    v = velocity * (10**4)
+                    v = velocity * (9*(10**3))
                     l = posX - startPos[0]
                     dx = cxBbox - startCxBbox
 
                     drawBall(v,dx,l)
                     cupHit = cupCollision(v, l, dx, 7, 1, g)
                     if cupHit != None:
-                        time.sleep(.45) 
-                        cupLocations.pop(cupHit)
-                        drawCup()
+                        cups[cupHit].visible = False
 
                     gameStarted = False
+                    throwStarted = False
 
             
         # Display results
