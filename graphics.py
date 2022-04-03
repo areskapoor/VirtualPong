@@ -1,5 +1,5 @@
 from vpython import *
-from time import *
+import time
 
 
 scene = canvas(width=1425, height=775,
@@ -24,12 +24,12 @@ def drawBall():
     loc=cupLocations()
     
     while True:
-        rate(40)
+        time.rate(40)
         dy=dy+ddy
         yPos=yPos+dy
         zPos=zPos+dz
         ball.pos=vector(xPos,yPos,zPos)
-        if yPos<=1.3:
+        if yPos<=0:
             ball.opacity=0
         
 
@@ -52,14 +52,22 @@ def cupLocations():
     cupLocations=[cup1Loc,cup2Loc,cup3Loc,cup4Loc,
         cup5Loc,cup6Loc,cup7Loc,cup8Loc
         ,cup9Loc,cup10Loc]
-
     
+    cupHit = cupCollision(v, l, dx, 7, 1, g) #v,l,dx determined from opencv
+                                             # g number - needs to be calcd
+    if cupHit != None:
+        t0 = time.clock()
+        while True:
+            dt = time.clock()-t0 #change in time
+            if dt == 0.45: #time from thrown to hitting cup - const MIGHT CHG 
+                cupLocations.pop(cupHit)
+                break
     return cupLocations
 
-def isCollision(v, l, dx, y, h, g):
-    time = math.sqrt((2*y-2*h)/g)
-    posx = ((v*time)/(math.sqrt(l**2+dx**2))+1)*dx
-    posy = ((v*time)/(math.sqrt(l**2+dx**2))+1)*l
+def cupCollision(v, l, dx, y, h, g):
+    t = math.sqrt((2*y-2*h)/g) #time
+    posx = ((v*t)/(math.sqrt(l**2+dx**2))+1)*dx
+    posy = ((v*t)/(math.sqrt(l**2+dx**2))+1)*l
     cups = cupLocations()
 
     for i in range(len(cups)):
@@ -73,8 +81,7 @@ def isCollision(v, l, dx, y, h, g):
 def drawCup():
     loc=cupLocations()
     for row in range(len(loc)):
-        if not checkCollision(loc[row][0],loc[row][2]):
-            drawCupHelper(loc[row][0],loc[row][2])
+        drawCupHelper(loc[row][0],loc[row][2])
 
 
 def virtualPong():
