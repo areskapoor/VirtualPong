@@ -3,6 +3,13 @@
 
 **VirtualPong** is a virtual water pong simulation powered by **OpenCV**, tracking the player's hand movements using a stereo camera system to accurately portray the desired movement. The graphical elements are simulated using **vpython**, modeling the 3D demonstration of a pong table on a virtual environment.
 
+<p align="center">
+   <img src="/assets/tableside.png" width="500" height="410">
+</p>
+
+<p align="center">
+   <img src="/assets/tablefront.png" width="500" height="410">
+</p>
 
 ## Required Modules
 - cv2 (OpenCV)
