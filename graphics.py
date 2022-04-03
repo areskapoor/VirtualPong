@@ -29,7 +29,7 @@ def drawBall():
         yPos=yPos+dy
         zPos=zPos+dz
         ball.pos=vector(xPos,yPos,zPos)
-        if yPos<=0:
+        if yPos<=1.3:
             ball.opacity=0
         
 
