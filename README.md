@@ -7,10 +7,6 @@
    <img src="/assets/tableside.png" width="500" height="410">
 </p>
 
-<p align="center">
-   <img src="/assets/tablefront.png" width="500" height="410">
-</p>
-
 ## Required Modules
 - cv2 (OpenCV)
 - vpython
