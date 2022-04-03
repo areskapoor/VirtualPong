@@ -1,7 +1,7 @@
 from vpython import *
 from time import *
 def drawpongTable():
-    pongTable=box(pos=vector(0,0,0),color=color.green,length=8, width=20, height=.8)
+    pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
 
 def drawBall():
     ball=sphere (color=color.orange, radius=.4)
@@ -12,17 +12,31 @@ def drawBall():
     yPos=7
     zPos=10
     while True:
-        rate(10)
+        rate(20)
         dy=dy+ddy
         yPos=yPos+dy
         zPos=zPos+dz
         ball.pos=vector(xPos,yPos,zPos)
-def drawCup():
+
+def drawCupHelper(x,z):
     #https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Extrusions/edit
-    tube = extrusion(path=[vec(0,0,0), vec(2,0,0)], shape=shapes.circle(radius=0.6, thickness=0.2),
-                    pos=vec(-1,1.7,0), axis=vec(0,2,0), color=color.yellow, end_face_color=color.blue)
+    tube = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(x,1,-z), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+
+def drawCup():
+    cup1= drawCupHelper(-0.6,9.4)
+    cup2= drawCupHelper(0.6,9.4)
+    cup3= drawCupHelper(-1.8,9.4)
+    cup4= drawCupHelper(1.8,9.4)
+    cup5= drawCupHelper(0,8.2)
+    cup6= drawCupHelper(-1.2,8.2)
+    cup7= drawCupHelper(1.2,8.2)
+    cup8= drawCupHelper(-0.6,7)
+    cup9= drawCupHelper(0.6,7)
+    cup10= drawCupHelper(0,5.8) 
 
 def virtualPong():
+    drawCup()
     drawpongTable()
     drawBall()
 
