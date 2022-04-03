@@ -7,6 +7,10 @@
    <img src="/assets/tableside.png" width="764.5" height="450">
 </p>
 
+<p align="center">
+   <img src="/assets/tracking.jpeg" width="764.5" height="450">
+</p>
+
 ## Required Modules
 - cv2 (OpenCV)
 - vpython
