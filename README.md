@@ -1,1 +1,1 @@
-# Virtual-Pong-with-OpenCV
+# CMU Hack112 Hackathon: VirtualPong
