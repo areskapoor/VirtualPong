@@ -24,7 +24,7 @@ def drawBall():
     loc=cupLocations()
     
     while True:
-        rate(20)
+        rate(40)
         dy=dy+ddy
         yPos=yPos+dy
         zPos=zPos+dz
@@ -56,19 +56,16 @@ def cupLocations():
     
     return cupLocations
 
+def checkCollision(x,z):
+    #just initialized values
+    return False
 
 def drawCup():
     loc=cupLocations()
-    cup1= drawCupHelper(loc[0][0],loc[0][2])
-    cup2= drawCupHelper(loc[1][0],loc[1][2])
-    cup3= drawCupHelper(loc[2][0],loc[2][2])
-    cup4= drawCupHelper(loc[3][0],loc[3][2])
-    cup5= drawCupHelper(loc[4][0],loc[4][2])
-    cup6= drawCupHelper(loc[5][0],loc[5][2])
-    cup7= drawCupHelper(loc[6][0],loc[6][2])
-    cup8= drawCupHelper(loc[7][0],loc[7][2])
-    cup9= drawCupHelper(loc[8][0],loc[8][2])
-    cup10= drawCupHelper(loc[9][0],loc[9][2])
+    for row in range(len(loc)):
+        if not checkCollision(loc[row][0],loc[row][2]):
+            drawCupHelper(loc[row][0],loc[row][2])
+
 
 def virtualPong():
     drawCup()
