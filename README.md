@@ -13,6 +13,6 @@
 - time
 
 ## How To Play VirtualPong
-1. run main.py
+1. run **main.py**
 2. enjoy!
 
