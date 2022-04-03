@@ -56,9 +56,19 @@ def cupLocations():
     
     return cupLocations
 
-def checkCollision(x,z):
-    #just initialized values
-    return False
+def isCollision(v, l, dx, y, h, g):
+    time = math.sqrt((2*y-2*h)/g)
+    posx = ((v*time)/(math.sqrt(l**2+dx**2))+1)*dx
+    posy = ((v*time)/(math.sqrt(l**2+dx**2))+1)*l
+    cups = cupLocations()
+
+    for i in range(len(cups)):
+        center = (cups[i][0], cups[i][2])
+        distance = math.sqrt((center[0]-posx)**2 + (center[1]-posy)**2)
+        if distance < 0.6:
+            return i
+    
+    return None
 
 def drawCup():
     loc=cupLocations()
