@@ -58,13 +58,13 @@ def drawTableBorder():
 def drawPongTable():
     pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
 
-def drawBall(v,changex,l):
+def drawBall(velocity,v,changex,l):
     ball=sphere (color=color.orange, radius=.4)
     angle = math.atan(changex/l)
-    dx = v * math.sin(angle)/3
+    dx = velocity*(10**4) * math.sin(angle)/6
     ddy=-0.01
     dy=0
-    dz=-v
+    dz=-v*l/math.sqrt(l**2+changex**2)
     xPos=0
     yPos=7
     zPos=10
@@ -80,10 +80,11 @@ def drawBall(v,changex,l):
     ball.visible = False
         
 
-def cupCollision(v, l, dx, y, h, g):
+def cupCollision(velocity,v, l, dx, y, h, g):
     t = math.sqrt(abs((2*y-2*h)/g)) #time
-    posx = ((v*t)/(math.sqrt(l**2+dx**2))+1)*dx/3
-    posy = 10+((-v*t)/(math.sqrt(l**2+dx**2))+1)*l
+    posx = ((velocity*(10**4)*t*dx)/(math.sqrt(l**2+dx**2)))/6
+    posy = 10+((-v*t)/math.sqrt(l**2+dx**2))*l
+    print(posx,posy)
 
     for i in range(len(cupLocations)):
         center = (cupLocations[i][0], cupLocations[i][2])
@@ -223,12 +224,25 @@ def virtualPong():
                     posY = center[1]
                     cxBbox = frontBbox[0] + frontBbox[2]/2
 
-                    v = velocity * (9*(10**3))
+                    print(velocity)
                     l = posX - startPos[0]
                     dx = cxBbox - startCxBbox
 
-                    drawBall(v,dx,l)
-                    cupHit = cupCollision(v, l, dx, 7, 1, g)
+                    if velocity < 6*(10**(-5)):
+                        v = (10+5.8)*math.sqrt(l**2+dx**2)/(20*l*math.sqrt(3))
+                    elif 6*(10**(-5)) <= velocity < 10*(10**(-5)):
+                        v = (10+7)*math.sqrt(l**2+dx**2)/(20*l*math.sqrt(3))
+                    elif 10*(10**(-5)) <= velocity < 14*(10**(-5)):
+                        v = (10+8.2)*math.sqrt(l**2+dx**2)/(20*l*math.sqrt(3))
+                    else:
+                        v = (10+9.4)*math.sqrt(l**2+dx**2)/(20*l*math.sqrt(3))
+
+
+                    print(v)
+                    print(l)
+                    print(dx)
+                    drawBall(velocity, v,dx,l)
+                    cupHit = cupCollision(velocity,v, l, dx, 7, 1, g)
                     if cupHit != None:
                         cups[cupHit].visible = False
 
