@@ -3,7 +3,6 @@ from time import *
 def drawpongTable():
     pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
 
-
 def drawBall():
     ball=sphere (color=color.orange, radius=.4)
     ddy=-0.00098
@@ -19,10 +18,8 @@ def drawBall():
         yPos=yPos+dy
         zPos=zPos+dz
         ball.pos=vector(xPos,yPos,zPos)
-        if ball.pos[1]<1.5:
-            return 
-        print(ball.pos)
-        
+        if yPos<=0:
+            ball.opacity=0
         
 
 def drawCupHelper(x,z):
