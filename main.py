@@ -1,39 +1,18 @@
 import cv2
 import sys
 import math
+import numpy as np
 
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
  
 if __name__ == '__main__' :
  
     # Set up tracker.
-    # Instead of CSRT, you can also use
- 
-    tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
-    tracker_type = tracker_types[7]
- 
-    if int(minor_ver) < 3:
-        tracker = cv2.Tracker_create(tracker_type)
-    else:
-        if tracker_type == 'BOOSTING':
-            tracker = cv2.TrackerBoosting_create()
-        elif tracker_type == 'MIL':
-            tracker = cv2.TrackerMIL_create()
-        elif tracker_type == 'KCF':
-            tracker = cv2.TrackerKCF_create()
-        elif tracker_type == 'TLD':
-            tracker = cv2.TrackerTLD_create()
-        elif tracker_type == 'MEDIANFLOW':
-            tracker = cv2.TrackerMedianFlow_create()
-        elif tracker_type == 'GOTURN':
-             tracker = cv2.TrackerGOTURN_create()
-        elif tracker_type == 'MOSSE':
-            tracker = cv2.TrackerMOSSE_create()
-        elif tracker_type == "CSRT":
-            tracker = cv2.TrackerCSRT_create()
+    tracker = cv2.legacy.TrackerCSRT_create()
+    multiTracker = cv2.legacy.MultiTracker_create()
     
     #Side Video
-    sideVideo = cv2.VideoCapture(0) #change to webcam
+    sideVideo = cv2.VideoCapture(1) #change to webcam
 
     if not sideVideo.isOpened():
         print("Could not open video")
@@ -45,12 +24,6 @@ if __name__ == '__main__' :
         print('Cannot read video file')
         sys.exit()
 
-    sideBbox = cv2.selectROI(sideFrame, False)
-    sideOk = tracker.init(sideFrame, sideBbox)
-
-    gameStarted = False
-    throwStarted = False
-    
     #Front Video
     frontVideo = cv2.VideoCapture(0)
 
@@ -64,146 +37,142 @@ if __name__ == '__main__' :
         print ('Cannot read video file')
         sys.exit()
 
-    frontBbox = cv2.selectROI(frontFrame, False)
+    sideFrame = cv2.resize(sideFrame, (1280,720))
 
-    frontOk = tracker.init(frontFrame, frontBbox)
+    comboFrame = np.hstack((frontFrame, sideFrame))
 
-  while True:
-
-      # Read a new frame
-      sideOk, sideFrame = video.read()
-      if not ok:
-          break
-
-      # Variables before update
-      timer = cv2.getTickCount()
-      initPos = (int(bbox[0]),int(bbox[1]))
-
-      # Update tracker
-      ok, bbox = tracker.update(frame)
-
-      #User interface keys
-      if cv2.waitKey(1) & 0xFF == ord('p'):
-          gameStarted = True
-
-      if cv2.waitKey(1) & 0xFF == ord('s'):
-          throwStarted = True
-          startPos = (center[0],center[1])
-
-      center = (bbox[0]+bbox[2]/2, bbox[1] + bbox[3]/2)
-      velocity = math.sqrt((int(bbox[0])-initPos[0])**2 + (int(bbox[1])-initPos[1])**2) / (cv2.getTickCount()-timer)
-
-      if gameStarted == True:
-          cv2.line(frame,(213,0),(213,720), (0,255,0), 5)
-
-          if throwStarted != True:
-              cv2.putText(frame, "Press 's' to start throw",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-
-          else:
-              cv2.putText(frame, "Throw!",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-              if 500< center[0] <600:
-                  posY = center[1]
-                  instVel = velocity
-
-                  horizontalDisplacement = 213 - startPos[0]
-                  verticalDisplacement = posY - startPos[1]
-                  tangent = horizontalDisplacement/verticalDisplacement
-
-                  angle = math.atan(tangent)
-
-                  print(instVel)
-                  print(angle)
-                  break
-
-
-
-      # Draw bounding box
-      if ok:
-          # Tracking success
-          p1 = (int(bbox[0]), int(bbox[1]))
-          p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-          cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-
-      else :
-           # Tracking failure
-          cv2.putText(frame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
-
-       # Display tracker type on frame
-      cv2.putText(frame, tracker_type + " Tracker", (100,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2);
-
-      #Display velocity on frame
-      cv2.putText(frame, "Velocity: " + str(velocity), (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2);
-       # Display result
-      cv2.imshow("Tracking", frame)
-
-      if cv2.waitKey(1) & 0xFF == ord('q'): 
-          break
-
-  video.release()
-  cv2.destroyAllWindows()
-  
-
-    while True:
-        # Read a new frame
-        ok, frame = video.read()
-        if not ok:
-            break
-
-        # Start timer
-        timer = cv2.getTickCount()
+    #Boxes
+    bboxes = cv2.selectROIs('MultiTracker', comboFrame)
         
-        # initPos = (bbox[0],bbox[1]) # x, y
-        # initBoxSize = (bbox[2],bbox[3]) # width, height
-        initCXBbox = bbox[0] + bbox[2]/2
-        # Update tracker
-        ok, bbox = tracker.update(frame)
+    
+    sideBbox = bboxes[0]
+    frontBbox = bboxes[1]
 
-        cxBbox = bbox[0] + bbox[2]/2
-        #change in frames
-        #dx = int(cxBbox-initCXBbox)
+    multiTracker.add(tracker, comboFrame, sideBbox)
+    multiTracker.add(tracker, comboFrame, frontBbox)
 
-        # Calculate Frames per second (FPS)
-        fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer);
 
+    gameStarted = False
+    throwStarted = False
+    start = False
+
+    def drawSideBox(sideOk, sideBbox, comboFrame):
         # Draw bounding box
-        if ok:
-            # Tracking success - bbox[0], bbox[1] are top left x,y
-            # bbox[2],bbox[3] are width and height
-            p1 = (int(bbox[0]), int(bbox[1])) #top left corner
-            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3])) #bottom right
+        if sideOk:
+            # Tracking success
+            p1 = (int(sideBbox[0]), int(sideBbox[1]))
+            p2 = (int(sideBbox[0] + sideBbox[2]), int(sideBbox[1] + sideBbox[3]))
+            cv2.rectangle(comboFrame, p1, p2, (0,0,255), 2, 1)
 
-            #center of the box
-            cBbox = (int(bbox[0] + bbox[2]/2),int(bbox[1] + bbox[3]/2))
-
-            if start:
-                dx = int(cxBbox-startCxBbox)
-                #display dx - temp
-                cv2.putText(frame, "dx :" + str(dx), (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2)
-            
-            cv2.circle(frame, cBbox, 1, (255,0,0) , 2)
-            cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
         else :
             # Tracking failure
-            cv2.putText(frame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+            cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+    
+    def drawFrontBox(frontOk, frontBbox, comboFrame):
+        if frontOk:
+            # Tracking success - bbox[0], bbox[1] are top left x,y
+            # bbox[2],bbox[3] are width and height
+            p1 = (int(frontBbox[0]), int(frontBbox[1])) #top left corner
+            p2 = (int(frontBbox[0] + frontBbox[2]), int(frontBbox[1] + frontBbox[3])) #bottom right
 
-        # Display tracker type on frame
-        cv2.putText(frame, tracker_type + " Tracker", (100,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2)
-        
-        # Display FPS on frame
-        cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2)
-        # Display result
-        cv2.imshow("Tracking", frame)
+            #center of the box
+            cBbox = (int(frontBbox[0] + frontBbox[2]/2),int(frontBbox[1] + frontBbox[3]/2))
+            cv2.rectangle(comboFrame, p1, p2, (255,0,0), 2, 1)
+        else :
+            # Tracking failure
+            cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
-        #if s pressed
-        if cv2.waitKey(1) & 0xFF == ord('s'):
-            start = True
-            ok, bbox = tracker.update(frame)
-            startCxBbox = bbox[0] + bbox[2]/2
-
-        # Exit if q pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
+    
+    while True:
+        # Read a new frame
+        sideOk, sideFrame = sideVideo.read()
+        if not sideOk:
             break
 
-    video.release()
+        # Read a new frame
+        frontOk, frontFrame = frontVideo.read()
+        if not frontOk:
+            break
+
+        sideFrame = cv2.resize(sideFrame, (1280,720))
+
+        comboFrame = np.hstack((sideFrame,frontFrame))
+
+        # Variables before update
+        timer = cv2.getTickCount()
+        initPos = (sideBbox[0]+sideBbox[2]/2,sideBbox[1]+sideBbox[3]/2)
+        initCXBbox = frontBbox[0] + frontBbox[2]/2
+
+        # Update tracker
+        success, boxes = multiTracker.update(comboFrame)
+        
+        sideBbox = boxes[0]
+        frontBbox = boxes[1]
+
+        center = (sideBbox[0]+sideBbox[2]/2, sideBbox[1] + sideBbox[3]/2)
+        cxBbox = frontBbox[0] + frontBbox[2]/2
+
+        drawSideBox(success, sideBbox, comboFrame)
+        drawFrontBox(success, frontBbox, comboFrame)
+
+        cv2.imshow('MultiTracker', comboFrame)
+
+        velocity = math.sqrt((center[0]-initPos[0])**2 + (center[1]-initPos[1])**2) / (cv2.getTickCount()-timer)
+        
+        
+        #User interface keys
+        if cv2.waitKey(1) & 0xFF == ord('p'):
+            gameStarted = True
+
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            throwStarted = True
+
+            startPos = (center[0],center[1])
+        
+            startCxBbox = frontBbox[0] + frontBbox[2]/2
+
+        if gameStarted == True:
+            cv2.line(sideFrame,(550,0),(550,720), (0,255,0), 5)
+
+            if throwStarted != True:
+                cv2.putText(sideFrame, "Press 's' to start throw",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(frontFrame, "Press 's' to start throw",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+
+            else:
+                cv2.putText(sideFrame, "Throw!",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                if 500< center[0] <600:
+                    posY = center[1]
+                    instVel = velocity
+
+                    horizontalDisplacement = 213 - startPos[0]
+                    verticalDisplacement = posY - startPos[1]
+                    tangent = horizontalDisplacement/verticalDisplacement
+
+                    angle = math.atan(tangent)
+
+                    cxBbox = frontBbox[0] + frontBbox[2]/2
+                    dx = cxBbox - startCxBbox
+
+                    print(instVel)
+                    print(angle)
+                    break
+        
+        
+        
+
+        
+        
+
+        #Display velocity on sideFrame
+        cv2.putText(sideFrame, "Velocity: " + str(velocity), (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2);
+        # Display result
+        cv2.imshow("Tracking", sideFrame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'): 
+            break
+
+    sideVideo.release()
+    frontVideo.release()
     cv2.destroyAllWindows()
 
+    
