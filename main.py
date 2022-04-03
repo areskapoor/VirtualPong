@@ -2,10 +2,9 @@ import cv2
 import sys
 import math
 from vpython import *
-import time
 
 
-scene = canvas(width=1425, height=775,
+scene = canvas(width=700, height=800,
      center=vector(0,0,0), background=color.black)
 
 g = -0.01
@@ -22,38 +21,64 @@ cup9Loc=[0.6,1,7]
 cup10Loc=[0,1,5.8]
 
 cupLocations=[cup1Loc,cup2Loc,cup3Loc,cup4Loc,
-    cup5Loc,cup6Loc,cup7Loc,cup8Loc
-    ,cup9Loc,cup10Loc]
+            cup5Loc,cup6Loc,cup7Loc,
+            cup8Loc,cup9Loc,cup10Loc]
 
 
 #https://www.glowscript.org/#/user/GlowScriptDemos/folder/Examples/program/Extrusions/edit
-cup1 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(-0.6,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup2 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(0.6,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup3 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(-1.8,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup4 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(1.8,1,-9.4), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup5 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(0,1,-8.2), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup6 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(-1.2,1,-8.2), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup7 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(1.2,1,-8.2), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup8 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(-0.6,1,-7), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup9 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(0.6,1,-7), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
-cup10 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], shape=shapes.circle(radius=0.6, thickness=0.1),
-                    pos=vec(0,1,-5.8), axis=vec(0,2,0), color=color.red, end_face_color=color.white)
+cup1 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-0.6,1,-9.4), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup2 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0.6,1,-9.4), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup3 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-1.8,1,-9.4), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup4 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(1.8,1,-9.4), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup5 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0,1,-8.2), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup6 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-1.2,1,-8.2), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup7 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(1.2,1,-8.2), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup8 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(-0.6,1,-7), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup9 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0.6,1,-7), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
+cup10 = extrusion(path=[vec(0,0,0), vec(1.5,0,0)], 
+                    shape=shapes.circle(radius=0.6, thickness=0.1),
+                    pos=vec(0,1,-5.8), axis=vec(0,2,0), 
+                    color=color.red, end_face_color=color.white)
 cups = [cup1,cup2,cup3,cup4,cup5,cup6,cup7,cup8,cup9,cup10]
 
 
 def drawTableBorder():
-    tableBorderMiddle=box(pos=vector(0,0.41,0),color=color.black,length=0.1, width=20, height=0)
-    tableBorderLeft=box(pos=vector(-4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
-    tableBorderLeft=box(pos=vector(4.1,0,0),color=color.red,length=0.2, width=20, height=.8)
+    tableBorderMiddle=box(pos=vector(0,0.41,0),
+                        color=color.black,length=0.1, 
+                        width=20, height=0)
+    tableBorderLeft=box(pos=vector(-4.1,0,0),
+                        color=color.red,length=0.2, 
+                        width=20, height=.8)
+    tableBorderLeft=box(pos=vector(4.1,0,0),
+                        color=color.red,length=0.2, 
+                        width=20, height=.8)
 
 def drawPongTable():
     pongTable=box(pos=vector(0,0,0),color=color.white,length=8, width=20, height=.8)
@@ -99,6 +124,7 @@ def virtualPong():
     drawPongTable()
     drawTableBorder()
 
+    #openCV structure adapted from https://livecodestream.dev/post/object-tracking-with-opencv/
     tracker1 = cv2.TrackerCSRT_create()
     tracker2 = cv2.TrackerCSRT_create()
 
@@ -126,8 +152,11 @@ def virtualPong():
         sys.exit()
 
     #ROI selection
+    cv2.resize(sideFrame, (1280,800))
+
     sideBbox = cv2.selectROI('SideTrack', sideFrame)
     frontBbox = cv2.selectROI('FrontTrack', frontFrame)
+
 
     sideOk = tracker1.init(sideFrame, sideBbox)
     frontOk = tracker2.init(frontFrame, frontBbox)
@@ -145,7 +174,8 @@ def virtualPong():
 
         else :
             # Tracking failure
-            cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+            cv2.putText(comboFrame, "Tracking failure detected", 
+                (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
         
     def drawFrontBox(frontOk, frontBbox, comboFrame):
         if frontOk:
@@ -157,7 +187,8 @@ def virtualPong():
             
         else :
             # Tracking failure
-            cv2.putText(comboFrame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+            cv2.putText(comboFrame, "Tracking failure detected", 
+                (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
 
         
@@ -166,11 +197,15 @@ def virtualPong():
         sideOk, sideFrame = sideVideo.read()
         if not sideOk:
             break
+        
+        sideFrame = cv2.resize(sideFrame,(1280,800))
 
         # Read a new frame
         frontOk, frontFrame = frontVideo.read()
         if not frontOk:
             break
+
+        frontFrame = cv2.resize(frontFrame,(1280,800))
 
         # Variables before update
         timer = cv2.getTickCount()
@@ -202,29 +237,36 @@ def virtualPong():
             startCxBbox = frontBbox[0] + frontBbox[2]/2
 
         if not gameStarted:
-            cv2.putText(sideFrame, "Press 'p' to start your turn", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-            cv2.putText(frontFrame, "Press 'p' to start your turn", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+            cv2.putText(sideFrame, "Press 'p' to start your turn", 
+                (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+            cv2.putText(frontFrame, "Press 'p' to start your turn", 
+                (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
         
         elif gameStarted:
-            cv2.line(sideFrame,(500,0),(500,720), (0,255,0), 5)
+            cv2.line(sideFrame,(300,0),(300,720), (0,255,0), 5)
             
 
             if not throwStarted:
-                cv2.putText(sideFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-                cv2.putText(frontFrame, "Start your throw behind the green line", (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-                cv2.putText(sideFrame, "Press 's' to start throw",(640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-                cv2.putText(frontFrame, "Press 's' to start throw",(640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(sideFrame, "Start your throw behind the green line", 
+                    (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(frontFrame, "Start your throw behind the green line", 
+                    (640,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(sideFrame, "Press 's' to start throw",
+                    (640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(frontFrame, "Press 's' to start throw",
+                    (640,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
 
             else:
-                cv2.line(sideFrame,(800,0),(800,720), (255,0,0), 5)
-                cv2.putText(sideFrame, "Throw! Throw made beyond blue line",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-                cv2.putText(sideFrame, "Throw! Throw made beyond blue line",(640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
-                if 750 < center[0] <850:
+                cv2.line(sideFrame,(550,0),(550,720), (255,0,0), 5)
+                cv2.putText(sideFrame, "Throw! Throw is made beyond blue line",
+                    (640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                cv2.putText(sideFrame, "Throw! Throw is made beyond blue line",
+                    (640,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255,255,255),2)
+                if 500 < center[0] <600:
                     posX = center[0]
                     posY = center[1]
                     cxBbox = frontBbox[0] + frontBbox[2]/2
 
-                    print(velocity)
                     l = posX - startPos[0]
                     dx = cxBbox - startCxBbox
 
@@ -237,10 +279,6 @@ def virtualPong():
                     else:
                         v = (10+9.4)*math.sqrt(l**2+dx**2)/(20*l*math.sqrt(3))
 
-
-                    print(v)
-                    print(l)
-                    print(dx)
                     drawBall(velocity, v,dx,l)
                     cupHit = cupCollision(velocity,v, l, dx, 7, 1, g)
                     if cupHit != None:
@@ -251,8 +289,13 @@ def virtualPong():
 
             
         # Display results
+        #https://www.geeksforgeeks.org/python-opencv-resizewindow-function/
+        #https://www.geeksforgeeks.org/python-opencv-movewindow-function/
         cv2.imshow("Tracking1", sideFrame)
+        cv2.moveWindow("Tracking1",0,-200)
+
         cv2.imshow("Tracking2", frontFrame)
+        cv2.moveWindow("Tracking2",0,375)
 
         if cv2.waitKey(1) & 0xFF == ord('q'): 
             break
