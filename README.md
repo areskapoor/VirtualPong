@@ -5,4 +5,10 @@
 
 
 
-</d> **Required Modules** </d>
+## Required Modules
+- OpenCV
+- vpython
+- math
+- numpy
+- sys
+- time
